@@ -21,7 +21,7 @@ export class AuthService {
         const candidate = await this.userService.getUserByUsername(userDto.username);
 
         if (candidate) {
-            throw new HttpException('User already exist', HttpStatus.BAD_REQUEST);
+            throw new HttpException(`Користувач з даним ім'я вже існує`, HttpStatus.BAD_REQUEST);
         }
 
         const hashPassword = await bcrypt.hash(userDto.password, 5);
@@ -41,13 +41,13 @@ export class AuthService {
         const user = await this.userService.getUserByUsername(userDto.username)
 
         if (!user) {
-            throw new UnauthorizedException({message: "Incorrect credentials"})
+            throw new UnauthorizedException({message: "Користувача з даним ім'я не існує"})
         }
 
         const passwordEquals = await bcrypt.compare(userDto.password, user.password);
 
         if (!passwordEquals) {
-            throw new UnauthorizedException({message: "Incorrect credentials"})
+            throw new UnauthorizedException({message: "Не правильний пароль"})
         }
 
         return user

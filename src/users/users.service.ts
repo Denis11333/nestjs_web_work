@@ -15,6 +15,7 @@ export class UsersService {
 
     }
 
+
     async getCurrentUserFromJwt(authorizationHeader) {
         let decodedToken = this.jwtService.decode(authorizationHeader.split(' ')[1])
         return await this.userRepository.findOne({
@@ -53,6 +54,16 @@ export class UsersService {
         })
     }
 
+    async getUserById(userId: number) {
+        return await this.userRepository.findOne({
+            where: {id: userId},
+            relations: {
+                roles: true,
+                users_to_share: true
+            }
+        })
+    }
+
     async getAllNonCurrentUser(user: User) {
         return await this.userRepository.find({where: {id: Not(user.id)}})
     }
@@ -86,5 +97,18 @@ export class UsersService {
                 }
             }
         })
+    }
+
+    async getUsersWhichIShareAndShareWithMeAndCurrent(userId: number) {
+        let user = await this.getSharedUsers(await this.getUserById(userId))
+        let userWhoShareWithMe = await this.getUserWhoShareWithMe(user)
+
+        return [...new Set([user.username, ...user.users_to_share.map(x => x.username), ...userWhoShareWithMe.map(x => x.username)])]
+    }
+
+    async getMySharedUsersAndI(userId: number) {
+        let user = await this.getSharedUsers(await this.getUserById(userId))
+
+        return [user.username, ...user.users_to_share.map(x => x.username)]
     }
 }

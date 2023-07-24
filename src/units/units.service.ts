@@ -39,10 +39,14 @@ export class UnitsService {
         return await this.unitRepository.delete(unit.id)
     }
 
+    async getUnitById(unitId: number) {
+        return this.unitRepository.findOne({where: {id: unitId}, relations: {user: true}})
+    }
+
     async getUnitsFromShare(user: User) {
         let usersWhoShareWithMe = await this.userService.getUserWhoShareWithMe(user)
 
-        if(usersWhoShareWithMe.length === 0){
+        if (usersWhoShareWithMe.length === 0) {
             return []
         }
 
@@ -59,4 +63,7 @@ export class UnitsService {
         })
     }
 
+    async getUserByUnitId(unitId: number) {
+        return await this.getUnitById(unitId).then(x => x.user)
+    }
 }

@@ -1,4 +1,4 @@
-import { ApiProperty } from "@nestjs/swagger";
+import {ApiProperty} from "@nestjs/swagger";
 import {Entity, PrimaryGeneratedColumn, Column, ManyToMany, JoinTable, OneToMany} from "typeorm";
 import {Role} from "../roles/roles.model";
 import {Unit} from "../units/units.model";
@@ -10,8 +10,8 @@ export class User {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @ApiProperty({maxLength:20})
-    @Column({length:20})
+    @ApiProperty({maxLength: 20})
+    @Column({length: 20})
     username: string;
 
     @ApiProperty()
@@ -31,4 +31,5 @@ export class User {
     @ManyToMany(() => User)
     @JoinTable()
     users_to_share: User[]
+
 }

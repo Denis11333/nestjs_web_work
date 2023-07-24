@@ -6,11 +6,13 @@ import {UnitsService} from "./units.service";
 import {CreateUnitDto} from "./dto/create-unit-dto";
 import {Unit} from "./units.model";
 import {UsersService} from "../users/users.service";
+import {MessageGateway} from "../web-sockets/gateway";
 
 @ApiTags("Units")
 @Controller('units')
 export class UnitsController {
-    constructor(private unitService: UnitsService, private userService: UsersService) {
+    constructor(private unitService: UnitsService, private userService: UsersService,
+                private messageGateWay: MessageGateway) {
     }
 
     @ApiOperation({})
@@ -21,7 +23,11 @@ export class UnitsController {
     async createUnit(@Body() dto: CreateUnitDto, @Headers('Authorization') authorizationHeader) {
         let currentUser = await this.userService.getCurrentUserFromJwt(authorizationHeader)
 
-        return this.unitService.createUnit(dto, currentUser)
+        let unit = await this.unitService.createUnit(dto, currentUser)
+
+        this.messageGateWay.sendSavedUnitToUsers(await this.userService.getMySharedUsersAndI(unit.user.id), unit, currentUser.username)
+
+        return unit
     }
 
     @ApiOperation({})
@@ -30,7 +36,11 @@ export class UnitsController {
     @UseGuards(RolesGuard)
     @Delete()
     async deleteUnit(@Body() unit: Unit) {
-        return this.unitService.deleteUnit(unit)
+        let result = await this.unitService.deleteUnit(unit)
+
+        this.messageGateWay.sendDeletedUnitToUsers(await this.userService.getMySharedUsersAndI(unit.user.id), unit)
+
+        return result
     }
 
     @ApiOperation({})
@@ -39,7 +49,11 @@ export class UnitsController {
     @UseGuards(RolesGuard)
     @Put()
     async changeUnit(@Body() unit: Unit) {
-        return this.unitService.changeUnit(unit)
+        let result = this.unitService.changeUnit(unit)
+
+        this.messageGateWay.sendChangedUnitToUsers(await this.userService.getUsersWhichIShareAndShareWithMeAndCurrent(unit.user.id), unit)
+
+        return result
     }
 
     @ApiOperation({})
@@ -63,4 +77,5 @@ export class UnitsController {
 
         return this.unitService.getUnitsFromShare(currentUser)
     }
+
 }

@@ -8,9 +8,5 @@ export class CreateServiceManDto {
     @ApiProperty()
     readonly position: string;
     @ApiProperty()
-    readonly status: string
-    @ApiProperty()
-    readonly isMilitary: boolean;
-    @ApiProperty()
     readonly unitId: number
 }

@@ -2,14 +2,15 @@ import {Body, Controller, Get, Headers, Post, UseGuards} from '@nestjs/common';
 import {ApiOperation, ApiResponse, ApiTags} from '@nestjs/swagger';
 import {Roles} from "../auth/role-auth.decorator";
 import {RolesGuard} from "../auth/roles.guard";
-import {CreateUnitDto} from "../units/dto/create-unit-dto";
 import {UsersService} from "./users.service";
 import {User} from "./users.model";
+import {MessageGateway} from "../web-sockets/gateway";
 
 @ApiTags("Users")
 @Controller('users')
 export class UsersController {
-    constructor(private userService : UsersService) {
+    constructor(private userService : UsersService,
+                private messageGateWay : MessageGateway) {
     }
 
     @ApiOperation({summary:''})
@@ -52,6 +53,8 @@ export class UsersController {
     @Post('/removeShare')
     async removeShare(@Body() user: User, @Headers('Authorization') authorizationHeader) {
         let currentUser = await this.userService.getCurrentUserFromJwt(authorizationHeader)
+
+        this.messageGateWay.deleteSharedUnits(currentUser.username, user.username)
 
         return this.userService.removeShareUser(user, currentUser)
     }

@@ -32,6 +32,6 @@ export class AuthController {
     async isJwtValid(@Headers('Authorization') authorizationHeader) {
         let currentUser = await this.userService.getCurrentUserFromJwt(authorizationHeader)
 
-        return {message : 'User authorize', username: currentUser.username}
+        return {message : 'User authorize', username: currentUser.username, userId: currentUser.id}
     }
 }
