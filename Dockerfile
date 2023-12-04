@@ -1,13 +1,13 @@
-FROM node:14
+FROM node:18
 
-WORKDIR /app
+WORKDIR /schedule/src
 
-COPY package.json .
-COPY package-lock.json .
+COPY package*.json ./
 
 RUN npm install
 
 COPY . .
 
-EXPOSE 8080
-CMD [ "npm", "start" ]
+RUN npm run build
+
+CMD [ "node", "dist/main.js" ]
